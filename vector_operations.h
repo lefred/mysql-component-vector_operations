@@ -37,7 +37,7 @@
 #include "mysql/strings/m_ctype.h"
 #include "sql/field.h"
 #include "sql/sql_udf.h"
-#include "sql/vector_conversion.h"
+#include "vector-common/vector_conversion.h"
 
 void populate_vector(uint32_t vec_dim, float *vec1,
                      std::vector<float> &vector1) {
@@ -78,6 +78,9 @@ static char *vector_addition(uint32_t vec_dim, float *vec1, float *vec2,
   populate_vector(vec_dim, vec2, vector2);
 
   std::vector<float> result(vector1.size());
+
+  const CHARSET_INFO *cs = &my_charset_utf8mb4_bin;
+
   for (size_t i = 0; i < vector1.size(); ++i) {
     result[i] = vector1[i] + vector2[i];
   }
@@ -90,7 +93,7 @@ static char *vector_addition(uint32_t vec_dim, float *vec1, float *vec2,
   auto dimension_bytes = Field_vector::dimension_bytes(output_dims);
   if (vector_string.mem_realloc(dimension_bytes)) return 0;
 
-  bool err = from_string_to_vector(result_cstr, strlen(result_cstr),
+  bool err = from_string_to_vector(cs, result_cstr, strlen(result_cstr),
                                    vector_string.ptr(), &output_dims);
 
   if (err) {
@@ -123,6 +126,9 @@ static char *vector_subtraction(uint32_t vec_dim, float *vec1, float *vec2,
   populate_vector(vec_dim, vec2, vector2);
 
   std::vector<float> result(vector1.size());
+
+  const CHARSET_INFO *cs = &my_charset_utf8mb4_bin;
+  
   for (size_t i = 0; i < vector1.size(); ++i) {
     result[i] = vector1[i] - vector2[i];
   }
@@ -135,7 +141,7 @@ static char *vector_subtraction(uint32_t vec_dim, float *vec1, float *vec2,
   auto dimension_bytes = Field_vector::dimension_bytes(output_dims);
   if (vector_string.mem_realloc(dimension_bytes)) return 0;
 
-  bool err = from_string_to_vector(result_cstr, strlen(result_cstr),
+  bool err = from_string_to_vector(cs, result_cstr, strlen(result_cstr),
                                    vector_string.ptr(), &output_dims);
 
   if (err) {
@@ -168,6 +174,9 @@ static char *vector_multiplication(uint32_t vec_dim, float *vec1, float *vec2,
   populate_vector(vec_dim, vec2, vector2);
 
   std::vector<float> result(vector1.size());
+
+  const CHARSET_INFO *cs = &my_charset_utf8mb4_bin;
+
   for (size_t i = 0; i < vector1.size(); ++i) {
     result[i] = vector1[i] * vector2[i];
   }
@@ -180,7 +189,7 @@ static char *vector_multiplication(uint32_t vec_dim, float *vec1, float *vec2,
   auto dimension_bytes = Field_vector::dimension_bytes(output_dims);
   if (vector_string.mem_realloc(dimension_bytes)) return 0;
 
-  bool err = from_string_to_vector(result_cstr, strlen(result_cstr),
+  bool err = from_string_to_vector(cs, result_cstr, strlen(result_cstr),
                                    vector_string.ptr(), &output_dims);
 
   if (err) {
@@ -213,6 +222,9 @@ static char *vector_division(uint32_t vec_dim, float *vec1, float *vec2,
   populate_vector(vec_dim, vec2, vector2);
 
   std::vector<float> result(vector1.size());
+
+  const CHARSET_INFO *cs = &my_charset_utf8mb4_bin;
+  
   for (size_t i = 0; i < vector1.size(); ++i) {
     if (vector2[i] == 0) {
       mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
@@ -231,7 +243,7 @@ static char *vector_division(uint32_t vec_dim, float *vec1, float *vec2,
   auto dimension_bytes = Field_vector::dimension_bytes(output_dims);
   if (vector_string.mem_realloc(dimension_bytes)) return 0;
 
-  bool err = from_string_to_vector(result_cstr, strlen(result_cstr),
+  bool err = from_string_to_vector(cs, result_cstr, strlen(result_cstr),
                                    vector_string.ptr(), &output_dims);
 
   if (err) {
